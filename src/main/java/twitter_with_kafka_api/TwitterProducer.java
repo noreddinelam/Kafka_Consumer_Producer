@@ -39,7 +39,7 @@ public class TwitterProducer {
         KafkaProducer<String, String> kafkaProducer = createKafkaProducer();
 
         /** Add shutdown hook */
-        Runtime.getRuntime().addShutdownHook(new Thread(()-> {
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             twitterClient.stop();
             kafkaProducer.close();
         }));
@@ -90,6 +90,12 @@ public class TwitterProducer {
         properties.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
         properties.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         properties.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+
+        /** Add some of advanced properties */
+        properties.setProperty(ProducerConfig.ACKS_CONFIG,"all");// By Default.
+        properties.setProperty(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, "true");
+        properties.setProperty(ProducerConfig.RETRIES_CONFIG,Integer.toString(Integer.MAX_VALUE));
+        properties.setProperty(ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, "5"); // the number of messages to send without ACK.
         return new KafkaProducer<>(properties);
     }
 }
