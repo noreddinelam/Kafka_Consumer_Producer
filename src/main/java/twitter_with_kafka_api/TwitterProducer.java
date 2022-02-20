@@ -18,11 +18,9 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import static twitter_with_kafka_api.TwitterApiConstants.*;
+
 public class TwitterProducer {
-    private final static String CONSUMER_KEY = "JZt1lTdGfWYd8p84aO37d4y3O";
-    private final static String CONSUMER_SECRET = "LrwH0Lj9RvQzhO5HTbOukX80ywSOIsGP9x9KFcG90Z9kA7iyS9";
-    private final static String TOKEN = "1495175102442446849-OwbAXZyAPOg8fnyR9VRr2H9ErBypcg";
-    private final static String TOKEN_SECRET = "M619mGKG0flARyjLbuWHyr0tFObdVMTaRHPt9AUEgkJ9l";
 
     private final static Logger logger = LoggerFactory.getLogger(TwitterProducer.class);
 
@@ -30,14 +28,17 @@ public class TwitterProducer {
         /** Set up your blocking queues: Be sure to size these properly based on expected TPS of your stream */
         BlockingQueue<String> msgQueue = new LinkedBlockingQueue<>(1000);
         Client twitterClient = createTwitterClient(msgQueue);
+        twitterClient.connect();
         String msg = "";
-        try {
-            while (!twitterClient.isDone()) {
+        while (!twitterClient.isDone()) {
+            try {
                 msg = msgQueue.poll(5, TimeUnit.MILLISECONDS);
-                logger.info("Received Message {}",msg);
+                if (msg != null)
+                    logger.info("Received Message {}", msg);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                twitterClient.stop();
             }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
         }
     }
 
@@ -50,12 +51,11 @@ public class TwitterProducer {
         Hosts hoseBirdHosts = new HttpHosts(Constants.STREAM_HOST);
         StatusesFilterEndpoint hoseBirdEndpoint = new StatusesFilterEndpoint();
         // Optional: set up some followings and track terms
-        List<String> terms = Lists.newArrayList("twitter", "api");
+        List<String> terms = Lists.newArrayList("bitcoin");
         hoseBirdEndpoint.trackTerms(terms);
 
         // These secrets should be read from a config file
         Authentication hoseBirdAuth = new OAuth1(CONSUMER_KEY, CONSUMER_SECRET, TOKEN, TOKEN_SECRET);
-
         return new ClientBuilder()
                 .name("HoseBird-Client-01")
                 .hosts(hoseBirdHosts)
