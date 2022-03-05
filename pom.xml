@@ -6,7 +6,12 @@
 
     <groupId>org.example</groupId>
     <artifactId>Learn-kafka</artifactId>
+    <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
+    <modules>
+        <module>elasticsearch_consumer_api</module>
+        <module>kafka_producer_api</module>
+    </modules>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
@@ -23,11 +28,6 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
             <version>1.7.36</version>
-        </dependency>
-        <dependency>
-            <groupId>com.twitter</groupId>
-            <artifactId>hbc-core</artifactId> <!-- or hbc-twitter4j -->
-            <version>2.2.0</version> <!-- or whatever the latest version is -->
         </dependency>
     </dependencies>
 
